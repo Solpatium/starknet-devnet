@@ -101,12 +101,6 @@ class Devnet(BaseApplication):
         self.cfg.set("workers", 1)
 
     def load(self):
-        load_dumped(self.args)
-        set_dump_options(self.args)
-        generate_accounts(self.args)
-        enable_lite_mode(self.args)
-        set_start_time(self.args)
-        set_gas_price(self.args)
         return self.application
 
 
@@ -116,6 +110,12 @@ def main():
     args = parse_args()
 
     try:
+        load_dumped(args)
+        set_dump_options(args)
+        generate_accounts(args)
+        enable_lite_mode(args)
+        set_start_time(args)
+        set_gas_price(args)
         print(f" * Listening on http://{args.host}:{args.port}/ (Press CTRL+C to quit)")
         Devnet(app, args).run()
     except KeyboardInterrupt:
