@@ -1,7 +1,6 @@
 """
 A server exposing Starknet functionalities as API endpoints.
 """
-from logging.config import dictConfig
 from pickle import UnpicklingError
 import sys
 
