@@ -7,7 +7,7 @@ import sys
 
 from flask import Flask, jsonify
 from flask_cors import CORS
-import meinheld
+from gunicorn.app.base import BaseApplication
 from starkware.starkware_utils.error_handling import StarkException
 
 from .blueprints.base import base
@@ -76,6 +76,7 @@ def enable_lite_mode(args):
 
     state.starknet_wrapper.set_config(config)
 
+
 def set_start_time(args):
     """Assign start time if specified."""
     if args.start_time is not None:
@@ -85,26 +86,37 @@ def set_gas_price(args):
     """Assign gas_price"""
     state.starknet_wrapper.set_gas_price(args.gas_price)
 
+
+class Devnet(BaseApplication):
+    """Our Gunicorn application."""
+
+    def __init__(self, application, args):
+        self.args = args
+        self.application = application
+        super().__init__()
+
+    def load_config(self):
+        self.cfg.set("bind", f"{self.args.host}:{self.args.port}")
+        self.cfg.set("workers", 1)
+
+    def load(self):
+        load_dumped(self.args)
+        set_dump_options(self.args)
+        generate_accounts(self.args)
+        enable_lite_mode(self.args)
+        set_start_time(self.args)
+        set_gas_price(self.args)
+        return self.application
+
+
 def main():
     """Runs the server."""
 
     args = parse_args()
 
-    # Uncomment this once fork support is added
-    # origin = Origin(args.fork) if args.fork else NullOrigin()
-    # starknet_wrapper.origin = origin
-
-    load_dumped(args)
-    set_dump_options(args)
-    generate_accounts(args)
-    enable_lite_mode(args)
-    set_start_time(args)
-    set_gas_price(args)
-
     try:
-        meinheld.listen((args.host, args.port))
         print(f" * Listening on http://{args.host}:{args.port}/ (Press CTRL+C to quit)")
-        meinheld.run(app)
+        Devnet(app, args).run()
     except KeyboardInterrupt:
         pass
     finally:
