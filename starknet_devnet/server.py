@@ -86,7 +86,8 @@ def set_gas_price(args):
     """Assign gas_price"""
     state.starknet_wrapper.set_gas_price(args.gas_price)
 
-
+#We don't need init method here.
+#pylint: disable=W0223
 class Devnet(BaseApplication):
     """Our Gunicorn application."""
 
