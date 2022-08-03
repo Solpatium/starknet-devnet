@@ -1,7 +1,7 @@
 """
 A server exposing Starknet functionalities as API endpoints.
 """
-
+from logging.config import dictConfig
 from pickle import UnpicklingError
 import sys
 
@@ -99,6 +99,8 @@ class Devnet(BaseApplication):
     def load_config(self):
         self.cfg.set("bind", f"{self.args.host}:{self.args.port}")
         self.cfg.set("workers", 1)
+        # "-" means stdout
+        self.cfg.set("accesslog", "-")
 
     def load(self):
         return self.application
