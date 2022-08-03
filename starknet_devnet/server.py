@@ -76,7 +76,6 @@ def enable_lite_mode(args):
 
     state.starknet_wrapper.set_config(config)
 
-
 def set_start_time(args):
     """Assign start time if specified."""
     if args.start_time is not None:
@@ -111,13 +110,18 @@ def main():
 
     args = parse_args()
 
+    # Uncomment this once fork support is added
+    # origin = Origin(args.fork) if args.fork else NullOrigin()
+    # starknet_wrapper.origin = origin
+
+    load_dumped(args)
+    set_dump_options(args)
+    generate_accounts(args)
+    enable_lite_mode(args)
+    set_start_time(args)
+    set_gas_price(args)
+
     try:
-        load_dumped(args)
-        set_dump_options(args)
-        generate_accounts(args)
-        enable_lite_mode(args)
-        set_start_time(args)
-        set_gas_price(args)
         print(f" * Listening on http://{args.host}:{args.port}/ (Press CTRL+C to quit)")
         Devnet(app, args).run()
     except KeyboardInterrupt:
