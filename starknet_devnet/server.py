@@ -99,6 +99,7 @@ class Devnet(BaseApplication):
         self.cfg.set("workers", 1)
         # "-" means stdout
         self.cfg.set("accesslog", "-")
+        self.cfg.set("loglevel", "warning")
 
     def load(self):
         return self.application
