@@ -84,8 +84,8 @@ def set_gas_price(args):
     """Assign gas_price"""
     state.starknet_wrapper.set_gas_price(args.gas_price)
 
-#We don't need init method here.
-#pylint: disable=W0223
+# We don't need init method here.
+# pylint: disable=W0223
 class Devnet(BaseApplication):
     """Our Gunicorn application."""
 
@@ -97,9 +97,25 @@ class Devnet(BaseApplication):
     def load_config(self):
         self.cfg.set("bind", f"{self.args.host}:{self.args.port}")
         self.cfg.set("workers", 1)
-        # "-" means stdout
-        self.cfg.set("accesslog", "-")
-        self.cfg.set("loglevel", "warning")
+        self.cfg.set("logconfig_dict", {
+            "loggers": {
+                "gunicorn.error": {
+                    # Disable info messages like "Starting gunicorn"
+                    "level": "WARNING",
+                    "handlers": ["error_console"],
+                    "propagate": False,
+                    "qualname": "gunicorn.error"
+                },
+
+                "gunicorn.access": {
+                    "level": "INFO",
+                    # Log access to stderr to maintain backward compatibility
+                    "handlers": ["error_console"],
+                    "propagate": False,
+                    "qualname": "gunicorn.access"
+                }
+            },
+        })
 
     def load(self):
         return self.application
@@ -136,7 +152,7 @@ def handle(error: StarkException):
     """Handles the error and responds in JSON. """
     return {"message": error.message, "status_code": error.status_code}, error.status_code
 
-@app.route("/api", methods = ["GET"])
+@app.route("/api", methods=["GET"])
 def api():
     """Return available endpoints."""
     routes = {}
