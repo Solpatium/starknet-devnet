@@ -1,6 +1,7 @@
 """
 A server exposing Starknet functionalities as API endpoints.
 """
+
 from pickle import UnpicklingError
 import sys
 import asyncio
@@ -156,7 +157,7 @@ def handle(error: StarkException):
     """Handles the error and responds in JSON. """
     return {"message": error.message, "status_code": error.status_code}, error.status_code
 
-@app.route("/api", methods=["GET"])
+@app.route("/api", methods = ["GET"])
 def api():
     """Return available endpoints."""
     routes = {}
