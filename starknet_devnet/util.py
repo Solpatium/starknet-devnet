@@ -11,6 +11,7 @@ from typing import List, Dict, Union
 
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.testing.contract import StarknetContract
+from starkware.starknet.business_logic.execution.objects import CallInfo
 from starkware.starknet.business_logic.state.state import CarriedState
 from starkware.starknet.services.api.feeder_gateway.response_objects import (
     BlockStateUpdate, StateDiff, StorageEntry, DeployedContract
@@ -134,17 +135,17 @@ def parse_args():
     )
     parser.add_argument(
         "--lite-mode",
-        action='store_true',
+        action="store_true",
         help="Applies all lite-mode-* optimizations by disabling some features."
     )
     parser.add_argument(
         "--lite-mode-block-hash",
-        action='store_true',
+        action="store_true",
         help="Disables block hash calculation"
     )
     parser.add_argument(
         "--lite-mode-deploy-hash",
-        action='store_true',
+        action="store_true",
         help="Disables deploy tx hash calculation"
     )
     parser.add_argument(
@@ -201,20 +202,11 @@ class StarknetDevnetException(StarkException):
         self.status_code = status_code
 
 @dataclass
-class DummyCallInfo:
-    """Used temporarily until contracts received from starknet.deploy include their own execution_info.call_info"""
-    def __init__(self):
-        self.execution_resources = None
-        self.contract_address = None
-        self.events = []
-        self.internal_calls = []
-
-@dataclass
 class DummyExecutionInfo:
-    """Used temporarily until contracts received from starknet.deploy include their own execution_info."""
+    """Used if tx fails, but execution info is still required."""
     def __init__(self):
         self.actual_fee = 0
-        self.call_info = DummyCallInfo()
+        self.call_info = CallInfo.empty_for_testing()
         self.retdata = []
         self.internal_calls = []
         self.l2_to_l1_messages = []

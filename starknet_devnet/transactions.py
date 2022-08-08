@@ -115,12 +115,18 @@ class DevnetTransaction:
         """Returns the transaction receipt"""
         tx_info = self.get_tx_info()
 
+        execution_resources = (
+            self.execution_info.call_info.execution_resources
+            if not self.status == TransactionStatus.REJECTED
+            else None
+        )
+
         return TransactionReceipt.from_tx_info(
             transaction_hash=self.transaction_hash,
             tx_info=tx_info,
             actual_fee=self.__get_actual_fee(),
             events=self.__get_events(),
-            execution_resources=self.execution_info.call_info.execution_resources,
+            execution_resources=execution_resources,
             l2_to_l1_messages=self.__get_l2_to_l1_messages()
         )
 
@@ -228,7 +234,7 @@ class DevnetTransactions:
 
         # "block_hash" will only exist after transaction enters ACCEPTED_ON_L2
         if transaction.status == TransactionStatus.ACCEPTED_ON_L2 and transaction.block is not None:
-            status_response["block_hash"] = transaction.block.block_hash
+            status_response["block_hash"] = hex(transaction.block.block_hash)
 
         # "tx_failure_reason" will only exist if the transaction was rejected.
         if transaction.status == TransactionStatus.REJECTED:
