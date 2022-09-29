@@ -2,8 +2,8 @@
 This module introduces `StarknetWrapper`, a wrapper class of
 starkware.starknet.testing.starknet.Starknet.
 """
-from copy import deepcopy, copy
-from typing import Dict, List, Set, Tuple, Union, ChainMap
+from copy import copy
+from typing import Dict, List, Set, Tuple, Union
 
 import cloudpickle as pickle
 from starkware.starknet.business_logic.transaction.fee import calculate_tx_fee
@@ -14,7 +14,11 @@ from starkware.starknet.business_logic.transaction.objects import (
     InternalDeploy,
     InternalL1Handler,
 )
-from starkware.starknet.business_logic.state.state import BlockInfo, CachedState, StateCache
+from starkware.starknet.business_logic.state.state import (
+    BlockInfo,
+    CachedState,
+    StateCache,
+)
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction,
     Deploy,
