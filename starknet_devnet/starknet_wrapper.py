@@ -128,11 +128,11 @@ class StarknetWrapper:
         )
 
     async def __preserve_current_state(self, state: CachedState):
+        # State has to be copied. block_info and state_reader are read-only, but cache is changed over time.
         cached_state = CachedState(
             block_info=state.block_info,
             state_reader=state.state_reader,
         )
-        # test_declaration_and_deployment depends on this
         cached_state.cache = deepcopy(state.cache)
 
         self.__current_cached_state = cached_state
