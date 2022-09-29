@@ -128,7 +128,14 @@ class StarknetWrapper:
         )
 
     async def __preserve_current_state(self, state: CachedState):
-        self.__current_cached_state = deepcopy(state)
+        cached_state = CachedState(
+            block_info=state.block_info,
+            state_reader=state.state_reader,
+        )
+        # test_declaration_and_deployment depends on this
+        cached_state.cache = deepcopy(state.cache)
+
+        self.__current_cached_state = cached_state
 
     async def __init_starknet(self):
         """
@@ -215,6 +222,8 @@ class StarknetWrapper:
         Stores the provided data as a deploy transaction in `self.transactions`.
         Generates a new block
         """
+        print(state_update)
+
         if transaction.status == TransactionStatus.REJECTED:
             assert error_message, "error_message must be present if tx rejected"
             transaction.set_failure_reason(error_message)
