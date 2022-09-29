@@ -2,8 +2,8 @@
 This module introduces `StarknetWrapper`, a wrapper class of
 starkware.starknet.testing.starknet.Starknet.
 """
-from copy import deepcopy
-from typing import Dict, List, Set, Tuple, Union
+from copy import deepcopy, copy
+from typing import Dict, List, Set, Tuple, Union, ChainMap
 
 import cloudpickle as pickle
 from starkware.starknet.business_logic.transaction.fee import calculate_tx_fee
@@ -14,7 +14,7 @@ from starkware.starknet.business_logic.transaction.objects import (
     InternalDeploy,
     InternalL1Handler,
 )
-from starkware.starknet.business_logic.state.state import BlockInfo, CachedState
+from starkware.starknet.business_logic.state.state import BlockInfo, CachedState, StateCache
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction,
     Deploy,
@@ -133,9 +133,20 @@ class StarknetWrapper:
             block_info=state.block_info,
             state_reader=state.state_reader,
         )
-        cached_state.cache = deepcopy(state.cache)
-
+        cached_state.cache = self.__copy_state_cache(state.cache)
         self.__current_cached_state = cached_state
+
+    @staticmethod
+    def __copy_state_cache(cache: StateCache) -> StateCache:
+        new_cache = StateCache()
+        # Cache is required to properly calculate state diffs.
+        # Deepcopy of state cache copies all instances of ContractClass which takes a lot of time.
+        # Instead, we can make a shallow copy of every important dict from the StateCache.
+        new_cache.address_to_class_hash = copy(cache.address_to_class_hash)
+        new_cache.address_to_nonce = copy(cache.address_to_nonce)
+        new_cache.storage_view = copy(cache.storage_view)
+        new_cache.contract_classes = copy(cache.contract_classes)
+        return new_cache
 
     async def __init_starknet(self):
         """
@@ -222,8 +233,6 @@ class StarknetWrapper:
         Stores the provided data as a deploy transaction in `self.transactions`.
         Generates a new block
         """
-        print(state_update)
-
         if transaction.status == TransactionStatus.REJECTED:
             assert error_message, "error_message must be present if tx rejected"
             transaction.set_failure_reason(error_message)
