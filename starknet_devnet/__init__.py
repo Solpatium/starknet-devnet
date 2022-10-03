@@ -10,7 +10,6 @@ from crypto_cpp_py.cpp_bindings import cpp_hash
 __version__ = "0.3.1"
 
 
-
 def patched_pedersen_hash(left: int, right: int) -> int:
     """
     Pedersen hash function written in c++
@@ -27,9 +26,13 @@ setattr(
     patched_pedersen_hash,
 )
 
+
 # Deep copy of a ContractClass takes a lot of time, but it should never be mutated.
-def simpler_copy(self, memo):
+def simpler_copy(self, memo):  # pylint: disable=unused-argument
+    """
+    A dummy implementation of ContractClass.__deepcopy__
+    """
     return copy(self)
 
 
-setattr(ContractClass, '__deepcopy__', simpler_copy)
+setattr(ContractClass, "__deepcopy__", simpler_copy)
