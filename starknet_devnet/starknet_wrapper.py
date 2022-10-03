@@ -2,7 +2,7 @@
 This module introduces `StarknetWrapper`, a wrapper class of
 starkware.starknet.testing.starknet.Starknet.
 """
-from copy import copy
+from copy import copy, deepcopy
 from typing import Dict, List, Set, Tuple, Union
 
 import cloudpickle as pickle
@@ -133,24 +133,7 @@ class StarknetWrapper:
 
     async def __preserve_current_state(self, state: CachedState):
         # State has to be copied. block_info and state_reader are read-only, but cache is changed over time.
-        cached_state = CachedState(
-            block_info=state.block_info,
-            state_reader=state.state_reader,
-        )
-        cached_state.cache = self.__copy_state_cache(state.cache)
-        self.__current_cached_state = cached_state
-
-    @staticmethod
-    def __copy_state_cache(cache: StateCache) -> StateCache:
-        new_cache = StateCache()
-        # Cache is required to properly calculate state diffs.
-        # Deepcopy of state cache copies all instances of ContractClass which takes a lot of time.
-        # Instead, we can make a shallow copy of every important dict from the StateCache.
-        new_cache.address_to_class_hash = copy(cache.address_to_class_hash)
-        new_cache.address_to_nonce = copy(cache.address_to_nonce)
-        new_cache.storage_view = copy(cache.storage_view)
-        new_cache.contract_classes = copy(cache.contract_classes)
-        return new_cache
+        self.__current_cached_state = deepcopy(state)
 
     async def __init_starknet(self):
         """
