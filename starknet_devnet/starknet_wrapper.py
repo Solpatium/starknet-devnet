@@ -2,7 +2,7 @@
 This module introduces `StarknetWrapper`, a wrapper class of
 starkware.starknet.testing.starknet.Starknet.
 """
-from copy import copy, deepcopy
+from copy import deepcopy
 from typing import Dict, List, Set, Tuple, Union
 
 import cloudpickle as pickle
@@ -14,11 +14,7 @@ from starkware.starknet.business_logic.transaction.objects import (
     InternalDeploy,
     InternalL1Handler,
 )
-from starkware.starknet.business_logic.state.state import (
-    BlockInfo,
-    CachedState,
-    StateCache,
-)
+from starkware.starknet.business_logic.state.state import BlockInfo, CachedState
 from starkware.starknet.services.api.gateway.transaction import (
     InvokeFunction,
     Deploy,
@@ -132,7 +128,6 @@ class StarknetWrapper:
         )
 
     async def __preserve_current_state(self, state: CachedState):
-        # State has to be copied. block_info and state_reader are read-only, but cache is changed over time.
         self.__current_cached_state = deepcopy(state)
 
     async def __init_starknet(self):
